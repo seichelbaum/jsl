@@ -163,7 +163,10 @@ export class Vuetify {
      */
     get isDarkRef() {
         return computed(() => {
-            return this.themeRef.value == this.m_config.defaultDarkTheme;
+            return (
+                this.themeRef.value == this.m_config.defaultDarkTheme ||
+                this.m_vuetify.theme.themes.value[this.themeRef.value]?.dark === true
+            );
         });
     }
 
