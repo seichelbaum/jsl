@@ -4,22 +4,32 @@
         @click="onClick"
         id="link"
         class="ma-0 pa-0"
-        :class="{ colored: !unstyled, uncolored: unstyled }"
+        :class="{ colored: !unstyled, uncolored: unstyled, colorOverride: color }"
     >
-        <slot>{{ href }}</slot>
+        <slot>{{ titleOrHref }}</slot>
     </a>
 
     <span v-else>
-        <slot>{{ href }}</slot>
+        <slot>{{ titleOrHref }}</slot>
     </span>
 </template>
 
 <script setup>
+import { computed } from "vue";
+
 import { platform } from "jsl/Platform";
 import { Test } from "jsl/Assert";
 
+import { tt, Translatable } from "jsl/Localization";
+
 const props = defineProps({
     href: { type: String, required: true },
+    // An optional title to show instead of href
+    text: { type: [String, Translatable], default: null },
+
+    // Allows to override the browser's default link color. This is ignored if unstyled is true.
+    color: { type: String, default: null },
+
     // disable any text color styling
     unstyled: { type: Boolean, required: false, default: false },
     // Opens the link externally. In Browsers, this is a new tab.
@@ -35,6 +45,13 @@ const emit = defineEmits([
     // Triggered on click, even if the href value is nullish
     "click",
 ]);
+
+const titleOrHref = computed(() => {
+    if (props.text) {
+        return tt(props.text).toString();
+    }
+    return props.href;
+});
 
 // Handle Clicks
 function onClick() {
@@ -52,6 +69,10 @@ function onClick() {
 
 .colored {
     color: -webkit-link;
+}
+
+.colorOverride {
+    color: v-bind("props.color") !important;
 }
 
 .uncolored {
